@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Secret Code — Unlock Your Hidden Blueprint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --base: #1e1e2e;
+  --surface: #313244;
+  --overlay: #45475a;
+  --text: #cdd6f4;
+  --subtext: #a6adc8;
+  --mauve: #cba6f7;
+  --pink: #f5c2e7;
+  --green: #a6e3a1;
+  --peach: #fab387;
+  --red: #f38ba8;
+  --blue: #89b4fa;
+  --font-title: 'Press Start 2P', cursive;
+  --font-mono: 'Share Tech Mono', monospace;
+  --font-body: 'VT323', monospace;
+}
+html { font-size: 16px; }
+body {
+  background-color: var(--base);
+  background-image: radial-gradient(circle, rgba(203,166,247,0.15) 1px, transparent 1px);
+  background-size: 28px 28px;
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 18px;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  line-height: 1.5;
+  position: relative;
+}
+.landing {
+  width: 100%;
+  max-width: 520px;
+  text-align: center;
+}
+.landing h1 {
+  font-family: var(--font-title);
+  font-size: 22px;
+  color: var(--mauve);
+  margin-bottom: 12px;
+  line-height: 1.3;
+}
+.landing .subtitle {
+  font-family: var(--font-body);
+  font-size: 20px;
+  color: var(--subtext);
+  margin-bottom: 32px;
+}
+.card {
+  background: var(--surface);
+  border: 2px solid var(--overlay);
+  box-shadow: 4px 4px 0px var(--overlay);
+  image-rendering: pixelated;
+  padding: 32px 28px;
+}
+.card label {
+  display: block;
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--subtext);
+  margin-bottom: 6px;
+}
+.card input {
+  width: 100%;
+  background: var(--base);
+  border: 2px solid var(--overlay);
+  box-shadow: 2px 2px 0px var(--overlay);
+  image-rendering: pixelated;
+  padding: 10px 12px;
+  font-family: var(--font-mono);
+  font-size: 16px;
+  color: var(--text);
+  outline: none;
+  margin-bottom: 16px;
+  transition: border-color 0.3s ease;
+}
+.card input:focus {
+  border-color: var(--mauve);
+  box-shadow: 2px 2px 0px var(--mauve);
+}
+.card input::placeholder { color: var(--overlay); }
+.card .field-group { margin-bottom: 8px; }
+.btn {
+  display: inline-block;
+  background: var(--mauve);
+  border: 2px solid var(--mauve);
+  box-shadow: 4px 4px 0px rgba(203,166,247,0.4);
+  image-rendering: pixelated;
+  padding: 12px 28px;
+  font-family: var(--font-title);
+  font-size: 12px;
+  color: var(--base);
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.btn:hover { transform: translate(-1px, -1px); box-shadow: 5px 5px 0px rgba(203,166,247,0.5); }
+.btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0px rgba(203,166,247,0.3); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: 4px 4px 0px rgba(203,166,247,0.4); }
+.error-msg {
+  font-family: var(--font-body);
+  font-size: 16px;
+  color: var(--red);
+  margin-top: 8px;
+  min-height: 24px;
+}
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.modal-overlay.active { opacity: 1; pointer-events: auto; }
+.modal {
+  background: var(--surface);
+  border: 2px solid var(--overlay);
+  box-shadow: 4px 4px 0px var(--overlay);
+  image-rendering: pixelated;
+  width: 90vw; max-width: 600px;
+  max-height: 85vh; overflow-y: auto;
+  padding: 24px;
+  position: relative;
+}
+.modal::-webkit-scrollbar { width: 6px; }
+.modal::-webkit-scrollbar-track { background: var(--base); }
+.modal::-webkit-scrollbar-thumb { background: var(--overlay); }
+.profile-content {
+  filter: blur(6px);
+  pointer-events: none;
+  user-select: none;
+  transition: filter 0.5s ease;
+  min-height: 260px;
+}
+.profile-content.unlocked {
+  filter: blur(0);
+  pointer-events: auto;
+  user-select: auto;
+}
+.email-overlay {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(100% - 48px); max-width: 400px;
+  background: var(--surface);
+  border: 2px solid var(--mauve);
+  box-shadow: 4px 4px 0px var(--mauve);
+  image-rendering: pixelated;
+  padding: 24px;
+  text-align: center;
+  z-index: 10;
+  transition: opacity 0.3s ease;
+}
+.email-overlay.hidden { opacity: 0; pointer-events: none; }
+.email-overlay h2 {
+  font-family: var(--font-title);
+  font-size: 12px;
+  color: var(--mauve);
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+.email-overlay p {
+  font-family: var(--font-body);
+  font-size: 18px;
+  color: var(--subtext);
+  margin-bottom: 16px;
+}
+.email-overlay input {
+  width: 100%;
+  background: var(--base);
+  border: 2px solid var(--overlay);
+  box-shadow: 2px 2px 0px var(--overlay);
+  image-rendering: pixelated;
+  padding: 10px 12px;
+  font-family: var(--font-mono);
+  font-size: 16px;
+  color: var(--text);
+  outline: none;
+  margin-bottom: 12px;
+  text-align: center;
+  transition: border-color 0.3s ease;
+}
+.email-overlay input:focus { border-color: var(--mauve); box-shadow: 2px 2px 0px var(--mauve); }
+.email-overlay .btn { width: 100%; }
+.email-overlay .email-status {
+  font-family: var(--font-body);
+  font-size: 16px;
+  color: var(--green);
+  min-height: 24px;
+  margin-top: 8px;
+}
+.email-overlay .email-status.error { color: var(--red); }
+.teaser-box {
+  background: var(--base);
+  border: 2px solid var(--mauve);
+  box-shadow: 2px 2px 0px var(--mauve);
+  image-rendering: pixelated;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.teaser-box:last-child { margin-bottom: 0; }
+.teaser-box .greeting {
+  font-family: var(--font-title);
+  font-size: 11px;
+  color: var(--pink);
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+.teaser-box .message {
+  font-family: var(--font-body);
+  font-size: 20px;
+  color: var(--text);
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+.teaser-box .instruction {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--peach);
+  line-height: 1.5;
+  border-top: 1px solid var(--overlay);
+  padding-top: 14px;
+}
+.hidden { display: none; }
+@media (max-width: 768px) {
+  body { padding: 12px; align-items: flex-start; padding-top: 24px; }
+  .modal-overlay { padding: 0; align-items: flex-start; }
+  .modal { width: 100vw; max-width: 100vw; max-height: 100vh; border: none; box-shadow: none; padding: 20px 16px; border-radius: 0; }
+  .landing h1 { font-size: 18px; }
+  .email-overlay { width: calc(100% - 32px); }
+  .email-overlay h2 { font-size: 11px; }
+  .teaser-box .message { font-size: 18px; }
+  .teaser-box .instruction { font-size: 12px; }
+}
+@media (max-width: 400px) {
+  .landing h1 { font-size: 15px; }
+  .landing .subtitle { font-size: 17px; }
+  .card { padding: 20px 16px; }
+  .modal { padding: 16px 12px; }
+  .teaser-box .message { font-size: 17px; }
+  .teaser-box .instruction { font-size: 11px; }
+}
+@media print {
+  body { background: #fff; color: #000; padding: 0; }
+  .modal-overlay { position: static; background: none; opacity: 1; pointer-events: auto; padding: 0; }
+  .modal { width: 100%; max-width: 100%; border: 1px solid #ccc; box-shadow: none; max-height: none; overflow: visible; }
+  .profile-content { filter: none; pointer-events: auto; user-select: auto; }
+  .email-overlay { display: none !important; }
+  .landing { display: none; }
+  .teaser-box { border-color: #ccc; box-shadow: none; }
+}
+</style>
+</head>
+<body>
+
+<section class="landing" id="landing">
+  <h1>THE<br>SECRET<br>CODE</h1>
+  <p class="subtitle">Your name and birth date carry a pattern. Enter them and see what stirs.</p>
+  <div class="card">
+    <form id="inputForm">
+      <div class="field-group">
+        <label for="fullName">FULL NAME</label>
+        <input type="text" id="fullName" placeholder="Your full name at birth" required autocomplete="name">
+      </div>
+      <div class="field-group">
+        <label for="dob">DATE OF BIRTH</label>
+        <input type="text" id="dob" placeholder="DD/MM/YYYY" required autocomplete="bday">
+      </div>
+      <div id="inputError" class="error-msg"></div>
+      <button type="submit" class="btn" id="unveilBtn">REVEAL THE TRUTH</button>
+    </form>
+  </div>
+</section>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modal">
+    <div class="profile-content" id="profileContent">
+      <div class="teaser-box" id="teaserBox">
+        <div class="greeting" id="greetingLine"></div>
+        <div class="message" id="teaserMessage"></div>
+        <div class="instruction" id="teaserInstruction"></div>
+      </div>
+    </div>
+
+    <div class="email-overlay" id="emailOverlay">
+      <h2>&#x25B2; CLASSIFIED &#x25B2;</h2>
+      <p>Enter your email to unlock this transmission.</p>
+      <form id="emailForm">
+        <input type="email" name="email" id="emailInput" placeholder="your@email.com" required autocomplete="email">
+        <input type="text" id="honeypot" name="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0.01" aria-hidden="true">
+        <input type="hidden" id="hiddenName">
+        <input type="hidden" id="hiddenDob">
+        <button type="submit" class="btn" id="emailBtn">UNLOCK</button>
+      </form>
+      <div id="emailStatus" class="email-status"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+
+var WEBHOOK_URL = 'https://n8n.neoxof.site/webhook/bf0e12dd-2d69-4a4c-be63-21b65b67a07b';
+
+var TEASERS = [
+  'The numbers embedded in your birth date are not random. They are coordinates — and yours point somewhere most people never look.',
+  'Your name carries a frequency that most never learn to hear. What you are about to receive is the first translation.',
+  'There is a logic to the chaos of your life. A pattern. And it has been running beneath the surface since the day you were born.',
+  'You were not born in a random moment. That date, that time — it was a doorway. And someone left the key in the lock.',
+  'The full reading shows you the cycles you didn\'t know you were in. The ones you keep repeating. The ones you are about to leave.'
+];
+
+function pickTeaser(name) {
+  var idx = name.length % TEASERS.length;
+  return TEASERS[idx];
+}
+
+function validateDOB(str) {
+  var m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (!m) return false;
+  var day = parseInt(m[1],10), month = parseInt(m[2],10), year = parseInt(m[3],10);
+  if (month < 1 || month > 12 || day < 1 || day > 31) return false;
+  if (year < 1900 || year > new Date().getFullYear()) return false;
+  return true;
+}
+
+function showModal(name) {
+  document.getElementById('greetingLine').textContent = name + ', your code is stirring.';
+  document.getElementById('teaserMessage').textContent = pickTeaser(name);
+  document.getElementById('teaserInstruction').innerHTML = 'What you see here is less than 1% of your complete Secret Code profile.<br>The full reading has been sent to your email.';
+  document.getElementById('modalOverlay').classList.add('active');
+  document.getElementById('profileContent').classList.remove('unlocked');
+  document.getElementById('emailOverlay').classList.remove('hidden');
+  document.getElementById('emailForm').style.display = 'block';
+  document.getElementById('emailInput').value = '';
+  document.getElementById('emailStatus').textContent = '';
+  document.getElementById('emailStatus').className = 'email-status';
+  var btn = document.getElementById('emailBtn');
+  btn.disabled = false;
+  btn.textContent = 'UNLOCK';
+  document.body.style.overflow = 'hidden';
+}
+
+function unlockProfile() {
+  document.getElementById('profileContent').classList.add('unlocked');
+  document.getElementById('emailOverlay').classList.add('hidden');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('unveilBtn').addEventListener('click', function(e) {
+  e.preventDefault();
+  var name = document.getElementById('fullName').value.trim();
+  var dob = document.getElementById('dob').value.trim();
+  var errEl = document.getElementById('inputError');
+  if (!name) { errEl.textContent = 'Please enter your full name.'; return; }
+  if (!validateDOB(dob)) { errEl.textContent = 'Please enter a valid date (DD/MM/YYYY).'; return; }
+  errEl.textContent = '';
+  document.getElementById('hiddenName').value = name;
+  document.getElementById('hiddenDob').value = dob;
+  showModal(name);
+});
+
+document.getElementById('modalOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeModal();
+});
+
+document.getElementById('emailForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  var btn = document.getElementById('emailBtn');
+  if (btn.disabled) return;
+  btn.disabled = true;
+  btn.textContent = 'OPENING CHANNEL...';
+  document.getElementById('emailStatus').textContent = '';
+  document.getElementById('emailStatus').className = 'email-status';
+
+  var email = document.getElementById('emailInput').value;
+
+  if (!email) {
+    document.getElementById('emailStatus').textContent = 'Enter your email to unlock.';
+    document.getElementById('emailStatus').className = 'email-status error';
+    btn.disabled = false;
+    btn.textContent = 'UNLOCK';
+    return;
+  }
+
+  var data = {
+    name: document.getElementById('hiddenName').value,
+    dob: document.getElementById('hiddenDob').value,
+    email: email,
+    website: document.getElementById('honeypot').value
+  };
+
+  fetch(WEBHOOK_URL, {
+    method: 'POST',
+    mode: 'cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  }).catch(function() {});
+
+  document.getElementById('teaserInstruction').innerHTML = 'Check your inbox. Check your spam folder.<br>The full Secret Code — your complete blueprint — is waiting for you there.';
+  unlockProfile();
+});
+
+var dobInput = document.getElementById('dob');
+dobInput.addEventListener('input', function() {
+  var val = this.value.replace(/\D/g, '').slice(0, 8);
+  var parts = [];
+  if (val.length > 0) parts.push(val.slice(0, 2));
+  if (val.length > 2) parts.push(val.slice(2, 4));
+  if (val.length > 4) parts.push(val.slice(4, 8));
+  this.value = parts.join('/');
+});
+
+})();
+</script>
+</body>
+</html>
